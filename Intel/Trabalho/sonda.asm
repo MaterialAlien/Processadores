@@ -12,7 +12,7 @@ FileHandleEntrada		dw		0				; Handler do arquivo
 FileHandleSaida		dw		0				; Handler do arquivo
 FileNameEntrada		db		20 dup(?)
 FileNameSaida db 20 dup(?)
-FileBuffer		dw 3 dup(?)
+FileBuffer		dw ?
 linha db 40 dup(?)
 bufferTempo db 10 dup(?)
 bufferDistancia db 10 dup(?)
@@ -28,8 +28,6 @@ valorAtualTempo dw ?
 valorAtualCarga dw ?
 valorAtualDistancia dw ?
 velocidadeMaxima dw 0
-
-FileNameBuffer	db		150 dup (?)
 
 MsgPedeArquivo		db	"Nome do arquivo de entrada: ", 0
 MsgErroOpenFile		db	"Erro na abertura do arquivo.", CR, LF, 0
