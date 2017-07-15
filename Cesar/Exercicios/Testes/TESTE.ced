@@ -1,0 +1,12 @@
+ORG 1024
+valorA: DW 3 
+valorB: DW 7
+soma: DW
+
+
+ORG 0
+MOV valorA, R0
+ADD valorB, R0
+MOV R0, soma
+HLT
+

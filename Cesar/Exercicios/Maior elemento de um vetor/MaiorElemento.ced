@@ -1,0 +1,28 @@
+
+;;Calcular o maior valor de um vetor de valores
+
+ORG H400
+vetor: DW 1028 ; Endereço incial de um vetor
+size: DW 4
+greater: DW
+
+ORG 1028
+5
+8
+125
+3
+
+ORG 0
+
+	MOV vetor, R0 ;;\
+	MOV #0, R1    ;; |Setando as variaveis iniciais para os registradores
+	MOV size, R2  ;;/
+
+loop:   CMP R1, (R0)   ;;\
+ 	BHI pula       ;; |R1 recebe o maior entre R1 e (R0)
+        MOV (R0)+, R1  ;; |
+  pula: SOB R2, loop   ;;/
+	MOV R1, greater;;No final greater receberá o maior valor do vetor
+	HLT
+	
+	

@@ -1,0 +1,8 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+TECST               65498                FFDA
+TECDAT              65499                FFDB
+VISOR               65500                FFDC
+ESCREVE_DADO             10                   A
+ESPERA_DADO             36                  24
+FIM                    45                  2D

@@ -1,0 +1,30 @@
+ORG 128
+
+valor_a: DB 
+valor_b: DB
+valor_c: DB
+resultado_a: DB
+resultado_b: DB
+resultado_c: DB
+
+ORG 0
+
+INICIO: LDR A valor_a
+	JSR complemento
+	STR A resultado_a
+	
+	LDR A valor_b
+	JSR complemento
+	STR A resultado_b
+
+	LDR A valor_c
+	JSR complemento
+	STR A resultado_c
+
+	HLT
+
+complemento: NOP
+	     NOT A
+	     ADD A #1
+	     JMP complemento,I
+

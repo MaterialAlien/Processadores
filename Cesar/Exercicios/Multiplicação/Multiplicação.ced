@@ -1,0 +1,19 @@
+ORG 1024
+valorA: DW 
+valorB: DW
+resultado: DW
+
+ORG 0
+
+MOV valorA,R1
+MOV valorB,R2
+JSR R5, multi
+MOV R0, resultado
+HLT
+
+
+multi:CLR R0
+      ADD R1,R0
+      SOB R2,4
+      JMP (R5)
+

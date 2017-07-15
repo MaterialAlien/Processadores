@@ -1,0 +1,42 @@
+ORG 128
+byte_inicial: DB
+
+ORG 180
+valorI: DB
+valorJ: DB
+
+ORG 0
+           LDR A #3
+nova_linha:JN FIM
+           STR A valorI
+       
+               LDR B #3
+   nova_coluna:JN nova_linhaPRE
+               STR B valorJ
+               JSR multi
+               ADD X valorJ
+               LDR A byte_inicial,X
+               ADD X #16
+               ADD A byte_inicial,X
+               ADD X #16
+               STR A byte_inicIal,X
+               SUB B #1
+               JMP nova_coluna         
+
+nova_linhaPRE:LDR A valorI
+              SUB A #1
+              JMP nova_linha 
+
+multi:NOP
+      LDR A valorI
+      LDR X #0
+      SUB A #1      
+ laco:JN multi,I
+      ADD X #4
+      SUB A #1
+      JMP laco
+
+
+FIM: HLT
+      
+      

@@ -1,0 +1,85 @@
+ORG 186
+inicio_dadosMais1: DB
+inicio_dadosMais2: DB
+Inicio_dadosMais3: DB
+primeiro_operando: DB 
+segundo_operando: DB
+tamanho_novo: DB 
+inicio_dados:DB 
+tamanho:DB 
+byte3:DB
+byte2:DB
+byte1:DB
+byte0:DB
+
+ORG 78
+byte_inicial1:DB
+
+ORG 85
+byte_inicial2:DB
+
+ORG 0 
+       
+        LDR A tamanho     ;;\
+        JZ FIM            ;; |
+        SUB A #4          ;; |tamanho_novo=tamanho-4;
+        STR A tamanho_novo;;/
+       
+        LDR A inicio_dados     ;;\
+        ADD A #1               ;; | 
+        STR A inicio_dadosMais1;; |inicio_dadosMais1=inicio_dados+1;
+        ADD A #1               ;; |
+        STR A inicio_dadosMais2;; |inicio_dadosMais2=inicio_dados+2;
+        ADD A #1               ;; |
+        STR A inicio_dadosMais3;;/ inicio_dadosMais3=inicio_dados+3;
+          
+	
+	LDR A inicio_dados,I;;\          
+	LDR B inicio_dados  ;; |byte3=somatorioXOR(&inicio_dados, inicio_dados);   
+	JSR somatorioXOR    ;; |
+	STR A byte3         ;;/
+    
+	LDR A inicio_dadosMais1,I;;\        
+	LDR B inicio_dadosMais1  ;; |byte2=somatorioXOR(&inicio_dados, inicio_dados);     
+	JSR somatorioXOR         ;; |
+	STR A byte2              ;;/
+
+	LDR A inicio_dadosMais2,I;;\        
+	LDR B inicio_dadosMais2  ;; |byte1=somatorioXOR(&inicio_dados, inicio_dados);     
+	JSR somatorioXOR         ;; |
+	STR A byte1              ;;/
+
+	LDR A inicio_dadosMais3,I;;\        
+	LDR B inicio_dadosMais3  ;; |byte0=somatorioXOR(&inicio_dados, inicio_dados);   
+	JSR somatorioXOR         ;; |
+	STR A byte0              ;;/
+
+        HLT
+        
+        FIM: LDR A #0
+             STR A 194
+             STR A 195
+             STR A 196
+             STR A 197
+             HLT          
+	
+
+somatorioXOR:NOP	            ;;\ 
+                                    ;; \ 
+	     STR B byte_inicial1    ;;  |int somatorioXOR( int *primeiro_operando, int byte_inicial)      
+             STR B byte_inicial2    ;;  |{       
+             LDR X tamanho_novo     ;;  |     int registrador_X=tamanho_novo;    
+  chama_laco:JZ  somatorioXOR,I     ;;  |     while(registrador_X != #0)     
+             STR A primeiro_operando;;  |     {
+             AND A byte_inicial1,X  ;;  |         *primeiro_operando= *primeiro_operando ^^ (byte_inicial+registardor_X); /* A ^^ B <=> !(A && B) &&  (A || B) */      
+             NOT A                  ;;  |         registrador_X-=#4; 
+	     STR A segundo_operando ;;  |     }
+             LDR A primeiro_operando;;  |     return primeiro_operando;
+	     OR  A byte_inicial2,X  ;;  |}        
+             AND A segundo_operando ;;  |
+             SUB X #4               ;; /
+	     JMP chama_laco         ;;/
+
+
+
+	

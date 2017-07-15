@@ -1,0 +1,14 @@
+ORG 1024
+valorA: DW 3 
+valorB: DW 7
+soma: DW
+
+
+ORG 0
+MOV #32, R0
+MOV #1024, R1
+CLR R2
+ADD (R1)+, R2
+SOB RO,4
+HLT
+

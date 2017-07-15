@@ -1,0 +1,656 @@
+
+;Rafael Júnior Ribeiro
+;==========================================================================
+;
+;	Programa base para desenvolvimento do trabalho do CESAR
+;
+;	Versão: 1.00 de 2017/1
+;
+;	Áreas de memória
+;	h0000 - h7FFF -> Programa Principal, que deve iniciar em h0000, e área de stack.
+;	h8000 - h80FF -> Variáveis de comunicação entre o PP e a Interrupção, conforme especificado.
+;	h8100 - h81FF -> Rotina de inicialização de periféricos e interrupção, que deve iniciar em h8100.
+;	h8200 - h83FF -> Rotina de atualização do movimento da Sonda, que deve inicia em h8200. Deve ser chamada a cada 100ms.
+;	h8400 - hFEFF -> Tratador de Interrupção. Pode ser colocado em qualquer endereço dessa área de memória.
+;	hFF80 - hFFFF -> Endereços de periféricos e controle do processador, conforme especificado no processador.
+;
+;
+;==========================================================================
+;
+
+;==========================================================================
+;	FF80 - FFFF: área reservada para os periféricos
+;==========================================================================
+	org	hff80
+
+; Acesso em 16 bits
+	org	hffbe
+IVET:	dw	0		; Vetor de interrupção
+
+; Acesso em 8 bits
+	org	hffc0
+	dab	[23]
+TIMDT:	db	0		; Registro de programação do timer
+INTS:	db	0		; INTERRUPT STATUS: IP x x x . x x IPStec IPStim
+INTE:	db	0		; INTERRUPT ENABLE: IE x x x . x x IEStec IEStim
+TECST:	db	0		; Status do teclado
+TECDT:	db	0		; Dado do teclado
+VISOR:	dab	[36]		; Portas de acesso ao visor
+
+;
+;==========================================================================
+;	8000 - 80FF: variáveis de comunicação entre o PP e as INTs
+;==========================================================================
+	org	h8000
+ON:		DW	0	; unsigned short ON
+AR:		DW	0	; unsigned short AR
+GPS:		DW	0	; unsigned short GPS
+DISTANCIA:	DAW	[2]	; unsigned int DISTANCIA
+TICK:		DW	0	; unsigned short TICK
+CARGA:		DW	0	; unsigned short CARGA
+VELOCIDADE:	DW	0	; unsigned short SPEED
+
+;==========================================================================
+; Área para o PROGRAMA PRINCIPAL
+;==========================================================================
+
+STACK:	EQU	H8000                                                     
+	org	0
+
+        clr     INTE		; Desabilita todas as interrup??es        ;INTE=0;    
+	mov	#STACK,r6	; Inicializa R6 (stack pointer)           ;R6=H8000;
+	jsr	r7,Inicializacao; Chama rotina de inicializa??o (da ISR?) ;inicialização();
+	 
+	; exibe mensagem de formata??o do visor
+        mov     #msgid-1,R0	; Mensagem b?sica
+        mov     #VISOR,R1	; Inicio do visor
+loopMsg:
+	mov	(r0),(r1)
+	inc	r0
+	inc	r1
+	bne	loopMsg
+
+        clr     TICK                                                      ;TICK=0;
+	or	#h80,INTE	; Habilita as interrup??es                ;INTE=INTE || H80;
+loopTICK:
+        tst     TICK; do {} while(!(TICK));
+	BEQ loopTICK;
+
+	CLR TICK    ; TICK=0;
+
+
+JSR R7 cargaUpdate     ;cargaUpdate();
+JSR R7 distanciaUpdate ; distanciaUpdate();
+JSR R7 velocidadeUpdate; velocidadeUpdate();
+
+
+JMP loopTICK           ; goto loopTICK;
+
+
+byte2:DW   ;int byte0,byte1,byte2;
+byte1:DW
+byte0:DW
+; Informações iniciais do visor
+msgid:  dab     'BAT:--,- Ah  DIS:-,- Km  VEL:-- Km/h' ;char[]="BAT:--,- Ah DIS:--,- Km VEL:-- Km/h";
+
+;==============>ATUALIZAÇÃO DA CARGA<============
+cargaUpdate:
+
+	CLR R0            ;R0=0
+	MOV CARGA,R1      ;R1=CARGA;
+	MOV #100,R2       ;R2=100;
+	JSR R7,_S_DIVIDIR ;R0=R0R1/R2;
+
+	MOV R0,R1         ;R1=R0;
+	JSR R7 pegaDigitos;pegaDigitos(R1);
+
+	MOV #04, R3       ;R3=4;
+
+	ADD #48, byte2      ;byte2+=48;
+	MOV byte2, VISOR(R3);VISOR[R3]=(char) byte2;
+	INC R3              ;R3+=1;
+	ADD #48, byte1      ;byte1+=48;
+	MOV byte1, VISOR(R3);VISOR[R3]=(char) byte1;
+	
+	ADD #2, R3          ;R3+=2;
+	ADD #48, byte0      ;byte0+=48;
+	MOV byte0, VISOR(R3);VISOR[R3]=(char) byte0;
+
+	RTS R7              ;return;
+;==============>ATUALIZAÇÃO DA VELOCIDADE<================
+velocidadeUpdate:
+
+	MOV VELOCIDADE, R0       ;R0=VELOCIDADE;
+	MOV #36, R1              ;R1=36;
+	JSR R7, _S_MULTIPLICAR   ;R0R1=R1*R0;
+
+	MOV #10000, R2           ;R0=R0R1/R2;
+	JSR R7, _S_DIVIDIR
+	
+	MOV R0, R1               ;R1=R0;
+	JSR R7 pegaDigitos       ;pegaDigitos(R1);
+
+	MOV #29, R3              ;R3=28;
+
+	ADD #48, byte1          ;byte1+=48;
+	MOV byte1, VISOR(R3)    ;VISOR[R3]=(char) byte1;
+	INC R3                  ;R3+=1;
+	ADD #48, byte0          ;byte0+=48;
+	MOV byte0, VISOR(R3)    ;VISOR[R3]=(char) byte1;
+
+	RTS R7                  ;return;
+
+;==============>ATUALIZAÇÃO DA DISTANCIA<================
+distanciaUpdate:
+
+	AND #3, INTE        ;INTE=INTE && 3;
+	MOV DISTANCIA, R0   ;R0=distancia
+	MOV DISTANCIA+2, R1 ;R1=distancia+2;
+	OR #128, INTE       ;INTE=INTE || 128;
+ 
+        MOV #10000, R2      ;R2=10000;
+	JSR R7, _S_DIVIDIR  ;R0=R0R1/R2
+	MOV R0, R1          ;R1=R0;
+	CLR R0              ;R0=0;
+	MOV #10, R2         ;R0=R1/R2;
+        JSR R7 _S_DIVIDIR
+
+	
+	MOV R0, R1          ;R1=R0;
+	JSR R7 pegaDigitos  ;pegaDigitos(R1);
+
+	MOV #17, R3         ;R3=16;
+
+	;ADD #48, byte2      ;byte2+=48;
+	;MOV byte2, VISOR(R3);VISOR[R3]=(char) byte2;
+	;INC R3              ;R3+=1;
+	ADD #48, byte1      ;byte1+=48;
+	MOV byte1, VISOR(R3);VISOR[R3]=(char) byte1;
+	
+	ADD #2, R3          ;R3+=2;
+	ADD #48, byte0      ;byte0+=48;
+	MOV byte0, VISOR(R3);VISOR[R3]=(char) byte0;
+	
+
+	RTS R7	            ;return
+	
+
+;=================>Rotina para identificar os digitos de um numero <========
+pegaDigitos:
+centenas:
+	CLR R0            ;R0=0;
+	MOV #100, R2      ;R2=100;
+        JSR R7 _S_DIVIDIR ;R0=R0R1/R2;
+	MOV R0, byte2     ;byte2=R0;
+dezenas: 
+	CLR R0           ;R0=0;
+	MOV #10, R2      ;R2=20;
+        JSR R7 _S_DIVIDIR;R0=R0R1/R2;
+	MOV R0, byte1    ;byte1=r0;
+unidades: 
+	CLR R0           ;R0=0;
+	MOV R1, byte0    ;byte0=R1;
+
+	RTS R7           ;return;
+
+;==================>ROTINA DE MULTIPLICAÇÃO - 16 bits * 16 bits<=============
+
+_S_MULTIPLICAR:
+          MOV R2,-(R6)          ; salva R2 na pilha
+          MOV R3,-(R6)          ; salva R3 na pilha
+          MOV #16,R2            ; inicializa contador
+          CLR R3                ; limpa R3
+__INICIO_LACO:
+          ROR R1                ; lsb do multiplicad. em C
+          BCC __NAO_SOMAR       ; se era zero, nao soma
+          ADD R0,R3             ; acumula multiplicando
+                                ; no produto parcial
+__NAO_SOMAR:
+          ROR R3                ; lsb de R3 vai para C
+          BCC __FIM_LACO        ; se era zero, sai do laco
+          ADD #32768,R1         ; soma 1 ao bit 15 de R1
+__FIM_LACO:
+          SOB R2,__INICIO_LACO  ; decrementa contador e
+                                ; repete se <> 0
+          MOV R3,R0             ; resultado de R3 para R0
+          MOV (R6)+,R3          ; restaura R3
+          MOV (R6)+,R2          ; restaura R2
+          TST R0                ; se R0 <> 0
+          BNE __ALERTA_ESTOURO  ; vai indicar estouro
+          CCC V                 ; senao, desliga V
+          RTS R7                ; retorna ao progr. princ.
+__ALERTA_ESTOURO:
+          SCC V                 ; liga indicador: estouro            
+          RTS R7                ; retorna ao ponto de chamada
+
+;==================>ROTINA DE DIVISÃO - 32 bits / 16 bits<=============
+
+_S_DIVIDIR:
+          TST R2                ; testa divisor
+          BNE __NAO_ZERO        ; se <> zero, continua
+          CCC V                 ; indica divisao por zero
+          RTS R7                ; retorna ao ponto de chamada
+
+__NAO_ZERO:
+          CMP R0,R2             ; testa se dividendo(msb)
+                                ; e' >= que o divisor
+          BCC __INDICA_ESTOURO  ; se for, indicar estouro
+                                ; note: BCC equivale a um
+                                ; BGE para int. positivos
+;>
+          MOV R3,-(R6)          ; salva R3 na pilha
+          MOV R4,-(R6)          ; salva R4 na pilha
+          MOV R5,-(R6)          ; salva R5 na pilha
+          MOV R0,R3             ; copia dividendo para
+          MOV R1,R4             ; R3 e R4 (=q no final)
+          MOV #16,R5            ; inicializa contador
+          ASL R4                ; desloca dividendo p/a
+          ROL R3                ; esquerda e abre espaco
+          BCS __SUBTRAI_DIVISOR ; p/um bit do quociente
+          CMP R3,R2             ; se n+1 msbits do divid.
+          BCS __BIT_ZERO        ; maiores que divisor (= BLT p/inteiros positivos)
+__SUBTRAI_DIVISOR:
+          SUB R2,R3             ; subtrai divisor e
+          INC R4                ; ajusta bit do quociente
+__BIT_ZERO:
+          SOB R5,16             ; decr. R5; se <>0, repete
+          MOV R3,R1             ; copia resto para R1
+          MOV R4,R0             ; copia quociente p/R0
+          MOV (R6)+,R5          ; restaura
+          MOV (R6)+,R4          ; registradores
+          MOV (R6)+,R3          ; de trabalho
+          CCC V Z               ; limpa cod. de condicao
+          RTS R7                ; retorna ao ponto de chamada
+;>
+__INDICA_ESTOURO:
+          SCC V                 ; indica overflow e nao
+          CCC Z                 ; divisao por zero
+          RTS R7                ; retorna ao ponto de chamada
+
+
+
+
+
+
+
+
+;==========================================================================
+; Área para os TRATADORES DE INTERRUPÇÃO
+;==========================================================================
+	org	h8400
+IPSTec:    equ	h0002	; máscara para AND: 00000010 (separa bit 1 de INTS)
+IPSTecOff: equ	hfffd	; máscara para OR:  11111101 (desliga bit 1 de INTS)
+IPSTim:    equ	h0001	; máscara para AND: 00000001 (separa bit 0 de INTS)
+IPSTimOff: equ	hfffe	; máscara para OR:  11111110 (desliga bit 0 de INTS)
+;
+ISR:
+        mov     r0,-(r6) ; salva conteudo dos registradores em uso no PP
+        mov     r1,-(r6)
+        mov     r2,-(r6)
+        mov     r3,-(r6)
+        mov     r4,-(r6)
+        mov     r5,-(r6)
+;
+testa_timer:
+        mov     INTS,r0
+        and     #IPSTim,r0
+        beq     testa_teclado
+        jsr     r7,timerISR
+        and     #IPSTimOff,INTS      ; desliga indicador de interrupção do timer
+;
+testa_teclado:
+        mov     INTS,r0
+        and     #IPSTec,r0
+        beq     atendeu_INTs
+        jsr     r7,tecISR
+        and     #IPSTecOff,INTS      ; desliga indicador de interrupção do teclado
+;
+atendeu_INTs:
+        mov     (r6)+,r5 ; restaura conteudo dos registradores em uso no PP
+        mov     (r6)+,r4
+        mov     (r6)+,r3
+        mov     (r6)+,r2
+        mov     (r6)+,r1
+        mov     (r6)+,r0
+        rti
+	
+;------------------------------------------------------------------------------
+conta_ticks: dw 0		; Contador de interrupções. Usado para gerar TICK
+timerISR:
+        jsr     r7,sonda        ; chama rotina de atualização do estado da sonda (a cada 100 ms)
+
+; conta_ticks++
+; if (conta_ticks>=) {
+;	conta_ticks = 0
+;	TICK = 1;
+; }
+        inc     conta_ticks
+        cmp     conta_ticks,#10
+        blt     timerISR_1
+        clr     conta_ticks
+        mov     #1,TICK
+timerISR_1:
+	
+; DISTANCIA = 300 * GPS
+	mov	#300,-(r6)		; r0:r1 = a x b
+	mov	GPS,-(r6)
+	mov	#LIB_MULT16,r5
+	jsr	r7,SysCall
+	add	#4,r6
+	mov	r0,DISTANCIA
+	mov	r1,DISTANCIA+2
+	
+        rts     r7
+
+;------------------------------------------------------------------------------
+tecISR:
+        mov     TECDT,r0
+        clr     TECST
+        or      #h0020,r0          ; converte maiúsculas em minúsculas
+	
+; if (TECDT == '0' || TECDT == 'o') {
+;	ON = ~ON;
+; }
+testa_oO:
+        cmp     r0,#'o'
+        bne     testa_wW
+        not     ON
+        br      tecISR_1
+	
+; if (TECDT == 'W' || TECDT == 'w') {
+;	AR = 1;
+; }
+testa_wW:
+        cmp     r0,#'w'
+        bne     testa_sS
+	mov	#1,AR
+        br      tecISR_1
+	
+; if (TECDT == 'S' || TECDT == 's') {
+;	AR = 0;
+; }
+testa_sS:
+        cmp     r0,#'s'
+        bne     tecISR_1
+        clr     AR
+	
+tecISR_1:
+        rts     r7
+
+
+
+
+
+
+;==========================================================================
+;	8100: inicialização da interrupcao e perifericos
+;==========================================================================
+	org	h8100
+Inicializacao:
+	; Inicialização das interrupções
+        or      #h0003,INTE     ; habilita interrupções de teclado e timer 
+        mov     #100,TIMDT  ; intervalo do timer = 100 milisegundos
+        mov     #ISR,IVET   ; inicializa endereco da ISR
+	
+	; Inicialização dos periféricos (teclado, visor e timer)
+	; Inicializacao da sonda
+        mov     #h30,IntD	; d = 3.200.000 mm;
+        mov     #hD400,IntD+2
+        mov     #10000,IntC	; c = 10000;
+        clr     IntV		; v = 0;
+	
+	; Inicialização de variáveis globais que forem necessárias
+        clr     TICK
+        clr     ON
+        clr     AR
+        mov     IntD,DISTANCIA		; DISTANCIA = d = 3.200.000 mm;
+        mov     IntD+2,DISTANCIA+2
+	
+	rts	r7
+
+	
+	
+;==========================================================================
+;	8200: deve ser chamado a cada 100ms,
+;		para atualizar as informações da Sonda
+;==========================================================================
+	org	h8200
+Sonda:
+	; N = 0;
+	; if (ON!=0 && AR!=0 && c!=0) N=1;
+	clr	Sonda_N
+	tst	ON
+	beq	_Sonda1
+	tst	AR
+	beq	_Sonda1
+	tst	IntC
+	beq	_Sonda1
+	mov	#1,Sonda_N
+_Sonda1:
+
+	;x = 99 * v;
+	mov	#99,-(r6)		; r0:r1 = a x b
+	mov	IntV,-(r6)
+	mov	#LIB_MULT16,r5
+	jsr	r7,SysCall
+	add	#4,r6
+	
+	;if (N!=0) x += 18200;
+	tst	Sonda_N
+	beq	_Sonda2
+	add	#0,r0
+	add	#18200,r1
+	adc	r0
+
+_Sonda2:
+
+	;v = x / 100;
+	mov	#100,-(r6)	; R0:R1 = a/b; R2:R3 = a%b
+	mov	#0,-(r6)
+	mov	r1,-(r6)
+	mov	r0,-(r6)
+	mov	#LIB_DIV32,r5
+	jsr	r7,SysCall
+	add	#8,r6
+	mov	r1,IntV
+	tst	r0		; if (Overflow) v=65536
+	beq	_Sonda3
+	mov	#hFFFF,IntV
+_Sonda3:
+	
+	; x = v / 10;
+	mov	#10,-(r6)		; R0 = a/b; R1 = a%b
+	mov	IntV,-(r6)
+	mov	#LIB_DIV16,r5
+	jsr	r7,SysCall
+	add	#4,r6
+	
+	; d = d - x
+	; if (d<0) d=0;
+	sub	r0,IntD+2
+	sbc	IntD	
+	bge	_Sonda4
+	clr	IntD
+	clr	IntD+2
+_Sonda4:
+			
+	; if (ON!=0) {
+	;	int g;
+	;	g=1;
+	;	if (AR!=0) g=6;
+	;	if (c>=g) c=c-g; else c=0;
+	;}
+	tst	ON
+	beq	_Sonda6
+	mov	#1,r0
+	tst	AR
+	beq	_Sonda51
+	mov	#6,r0
+_Sonda51:
+	cmp	IntC,r0
+	blt	_Sonda5
+	sub	r0,IntC
+	br	_Sonda6
+_Sonda5:
+	clr	IntC
+_Sonda6:
+
+	; if (d==0) v=0;
+	tst	IntD
+	bne	_Sonda7
+	clr	IntV
+_Sonda7:
+
+	; if (c==0) ON=0;
+	tst	IntC
+	bne	_Sonda8
+	clr	ON
+_Sonda8:
+
+	; SPEED = v;
+	mov	IntV,VELOCIDADE
+		
+	; GPS = d/300;
+	mov	#300,-(r6)
+	mov	#0,-(r6)
+	mov	IntD+2,-(r6)
+	mov	IntD,-(r6)
+	mov	#LIB_DIV32,r5
+	jsr	r7,SysCall
+	add	#8,r6
+	mov	r1,GPS
+	
+	; CARGA = c;
+	mov	IntC,CARGA
+
+	rts	r7
+
+Sonda_N:	dw	0
+IntD:		daw	0,0	; int d
+IntC:		dw	0	; unsigned short c
+IntV:		dw	0	; unsigned short v
+
+
+SysCall:
+	add	r5,r5
+	jmp	(libTab(r5))
+	
+LIB_INIT:	EQU	0
+LIB_MULT16:	EQU	1
+LIB_DIV16:	EQU	2
+LIB_MULT32:	EQU	3
+LIB_DIV32:	EQU	4
+
+libTab:	DW	_libInit
+	DW	_mult16
+	DW	_div16
+	DW	_mult32
+	DW	_div32
+	
+_libInit:
+	rts	r7
+	
+_mult16:
+	clr	r0
+	clr	r1
+	
+	clr	r2
+_mult16_1:
+	asr	4(r6)
+	bcc	_mult16_2
+	add	r2,r0
+	add	2(r6),r1
+	adc	r0
+_mult16_2:
+	asl	2(r6)
+	rol	r2
+	tst	4(r6)
+	bne	_mult16_1
+	rts	r7
+
+_div16:
+	mov	r2,-(r6)
+	
+	clr	r0
+	clr	r1
+	mov	#16,r2
+_div16_1:
+	asl	4(r6)
+	rol	r1
+	asl	r0
+	cmp	r1,6(r6)
+	beq	_div16_2
+	bls	_div16_3
+_div16_2:
+	sub	6(r6),r1
+	or	#1,r0
+
+_div16_3:
+	sob	r2,_div16_1
+	
+	mov	(r6)+,r2
+	rts	r7
+	
+_mult32:
+	clr	r0
+	clr	r1
+	clr	r2
+	clr	r3
+	clr	r4
+	clr	r5
+_mult32_1:
+	asr	6(r6)
+	ror	8(r6)
+	bcc	_mult32_2
+	
+	add	r4,r0
+	add	r5,r1
+	adc	r0
+	add	2(r6),r2
+	adc	r1
+	adc	r0
+	add	4(r6),r3
+	adc	r2
+	adc	r1
+	adc	r0
+		
+_mult32_2:
+	asl	4(r6)
+	rol	2(r6)
+	rol	r4
+	rol	r5
+	tst	6(r6)
+	bne	_mult32_1
+	tst	8(r6)
+	bne	_mult32_1
+	rts	r7
+
+_div32:
+	clr	r0
+	clr	r1
+	clr	r2
+	clr	r3
+	mov	#32,r4
+_div32_1:
+	asl	4(r6)
+	rol	2(r6)
+	rol	r3
+	rol	r2
+	asl	r1
+	rol	r0
+	cmp	r2,6(r6)
+	bne	_div32_2
+	cmp	r3,8(r6)
+	beq	_div32_4
+_div32_2:
+	bls	_div32_3
+_div32_4:
+	sub	6(r6),r2
+	sub	8(r6),r3
+	sbc	r2
+	or	#1,r1
+
+_div32_3:
+	sob	r4,_div32_1
+	rts	r7
+	

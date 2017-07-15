@@ -1,0 +1,80 @@
+Correção: Soma de duas matrizes 4x4
+Teste numero 1
+Caso 1:
+End.128 recebe 12
+End.129 recebe 44
+End.130 recebe 45
+End.131 recebe 3
+End.132 recebe 89
+End.133 recebe 82
+End.134 recebe 122
+End.135 recebe 4
+End.136 recebe 5
+End.137 recebe 5
+End.138 recebe 5
+End.139 recebe 13
+End.140 recebe 12
+End.141 recebe 10
+End.142 recebe 73
+End.143 recebe 100
+End.144 recebe 4
+End.145 recebe 5
+End.146 recebe 12
+End.147 recebe 13
+End.148 recebe 30
+End.149 recebe 4
+End.150 recebe 2
+End.151 recebe 80
+End.152 recebe 61
+End.153 recebe 62
+End.154 recebe 43
+End.155 recebe 12
+End.156 recebe 12
+End.157 recebe 14
+End.158 recebe 7
+End.159 recebe 2
+End.160 deve receber 16
+End.161 deve receber 49
+End.162 deve receber 57
+End.163 deve receber 16
+End.164 deve receber 119
+End.165 deve receber 86
+End.166 deve receber 124
+End.167 deve receber 84
+End.168 deve receber 66
+End.169 deve receber 67
+End.170 deve receber 48
+End.171 deve receber 25
+End.172 deve receber 24
+End.173 deve receber 24
+End.174 deve receber 80
+End.175 deve receber 102
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Arquivo SomaDuasMatrizes.mem:
+ Teste 1: excedeu 640000 instrucoes -- Resultado incorreto
+  End.161 contem 5; deveria ser 49
+  End.162 contem 0; deveria ser 57
+  End.163 contem 0; deveria ser 16
+  End.164 contem 0; deveria ser 119
+  End.165 contem 0; deveria ser 86
+  End.166 contem 0; deveria ser 124
+  End.167 contem 0; deveria ser 84
+  End.168 contem 0; deveria ser 66
+  End.169 contem 0; deveria ser 67
+  End.170 contem 0; deveria ser 48
+  End.172 contem 0; deveria ser 24
+  End.173 contem 0; deveria ser 24
+  End.174 contem 0; deveria ser 80
+  13 erros em 16 enderecos
+  Executadas 640000 instrucoes, com 1215328 leituras e 41067 escritas (1256395 acessos)
+ 1 erro em 1 teste
+ 1 erro em 1 teste
+
+Arquivo SomaDuasMatrizes2.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 367 instrucoes, com 773 leituras e 52 escritas (825 acessos)
+ Todos os testes corretos
+ Todos os testes corretos
+

@@ -1,0 +1,8 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+Q_TERMOS              128                  80
+PRIMEIRO_TERMO            129                  81
+SEGUNDO_TERMO            130                  82
+BYTE_INICIAL            131                  83
+LOOP                    4                   4
+FIM                    20                  14

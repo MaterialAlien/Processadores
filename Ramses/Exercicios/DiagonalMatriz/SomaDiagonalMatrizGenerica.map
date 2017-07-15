@@ -1,0 +1,15 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+TAMANHO               128                  80
+VALOR_I               129                  81
+VALOR_J               130                  82
+SOMA                  131                  83
+MATRIZ                132                  84
+NOVA_LINHA              6                   6
+NOVA_COLUNA             12                   C
+COLUNAMENOS             20                  14
+NOVA_LINHAPRE             24                  18
+VAI_SOMA               30                  1E
+MULTI                  48                  30
+LACO                   53                  35
+FIM                    61                  3D

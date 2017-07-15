@@ -1,0 +1,51 @@
+ORG 128
+variavel_x: DB
+variavel_y: DB
+soma: DB
+subtracao: DB
+multi:DB
+div: DB
+DIG1: DB
+DIG2: DB
+aux: DB 0 
+
+ORG 0
+INICIO: LDR A variavel_x
+	LDR B variavel_y
+	JSR somaOP
+	STR A soma
+	;JSR subtracaoOP
+	;STR X subtraca0
+	LDR A variavel_x
+	LDR B variavel_y
+	JSR multiOP
+	STR X multi
+	; JSR divOP
+	; STR X div
+	HLT
+
+somaOP: NOP
+	STR A DIG1
+	STR B DIG2
+	LDR A DIG1
+	ADD A DIG2
+	JMP somaOP,I
+
+multiOP:     NOP
+	     STR A DIG1
+	     STR B DIG2
+inicio_multi:LDR A aux
+	     ADD A DIG1 
+	     STR A aux
+	     LDR A DIG2
+	     SUB A #1
+	     STR A DIG2
+             JZ fim_multi
+	     JMP inicio_multi
+fim_multi:   JMP multiOP,I
+	     
+             
+
+	
+
+	

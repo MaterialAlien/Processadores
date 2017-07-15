@@ -1,0 +1,12 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+DIMENSAO              128                  80
+VALOR_I               129                  81
+VALOR_J               130                  82
+BYTE_INICIAL            135                  87
+NOVA_LINHA              2                   2
+NOVA_COLUNA              8                   8
+NOVA_LINHAPRE             28                  1C
+MULTI                  34                  22
+CONTINUA               43                  2B
+FIM                    51                  33

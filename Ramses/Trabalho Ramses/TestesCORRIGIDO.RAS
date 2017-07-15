@@ -1,0 +1,151 @@
+Correção de trabalho prático Ramses - 2017/1
+Calculo de Hash
+Teste numero 1
+Caso 1: 11224488 xor 22448811  8  posições
+End.192 recebe 205
+End.193 recebe 8
+End.205 recebe 11
+End.206 recebe 22
+End.207 recebe 44
+End.208 recebe 88
+End.209 recebe 22
+End.210 recebe 44
+End.211 recebe 88
+End.212 recebe 11
+End.194 deve receber 29
+End.195 deve receber 58
+End.196 deve receber 116
+End.197 deve receber 83
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 2
+Caso 2: 1111224488 xor 22448811 xor 11224488 || 12  posições
+End.192 recebe 218
+End.193 recebe 12
+End.218 recebe 11
+End.219 recebe 22
+End.220 recebe 44
+End.221 recebe 88
+End.222 recebe 22
+End.223 recebe 44
+End.224 recebe 88
+End.225 recebe 11
+End.226 recebe 11
+End.227 recebe 22
+End.228 recebe 44
+End.229 recebe 88
+End.194 deve receber 22
+End.195 deve receber 44
+End.196 deve receber 88
+End.197 deve receber 11
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 3
+Caso 3: 05141290 xor 81341254 xor 12641303 xor 30303002 || 16 posições
+End.192 recebe 220
+End.193 recebe 16
+End.220 recebe 5
+End.221 recebe 14
+End.222 recebe 12
+End.223 recebe 90
+End.224 recebe 81
+End.225 recebe 34
+End.226 recebe 12
+End.227 recebe 54
+End.228 recebe 12
+End.229 recebe 64
+End.230 recebe 13
+End.231 recebe 3
+End.232 recebe 30
+End.233 recebe 30
+End.234 recebe 30
+End.235 recebe 2
+End.194 deve receber 70
+End.195 deve receber 114
+End.196 deve receber 19
+End.197 deve receber 109
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 4
+Caso 4: 13188999 xor 11438012 xor 22228956 xor 70131057 xor 61141158 || 20 posições
+End.192 recebe 203
+End.193 recebe 20
+End.203 recebe 13
+End.204 recebe 18
+End.205 recebe 89
+End.206 recebe 99
+End.207 recebe 11
+End.208 recebe 43
+End.209 recebe 80
+End.210 recebe 12
+End.211 recebe 22
+End.212 recebe 22
+End.213 recebe 89
+End.214 recebe 56
+End.215 recebe 70
+End.216 recebe 13
+End.217 recebe 10
+End.218 recebe 57
+End.219 recebe 61
+End.220 recebe 14
+End.221 recebe 11
+End.222 recebe 58
+End.194 deve receber 107
+End.195 deve receber 44
+End.196 deve receber 81
+End.197 deve receber 84
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 5
+Caso 5: 80121341 xor 14991499 xor 061447082 xor 051337283 xor 04055684 xor 13024113 || 24 posições
+End.192 recebe 220
+End.193 recebe 24
+End.220 recebe 80
+End.221 recebe 12
+End.222 recebe 13
+End.223 recebe 41
+End.224 recebe 14
+End.225 recebe 99
+End.226 recebe 14
+End.227 recebe 99
+End.228 recebe 6
+End.229 recebe 144
+End.230 recebe 70
+End.231 recebe 82
+End.232 recebe 5
+End.233 recebe 133
+End.234 recebe 72
+End.235 recebe 83
+End.236 recebe 4
+End.237 recebe 5
+End.238 recebe 56
+End.239 recebe 84
+End.240 recebe 13
+End.241 recebe 2
+End.242 recebe 41
+End.243 recebe 13
+End.194 deve receber 84
+End.195 deve receber 125
+End.196 deve receber 28
+End.197 deve receber 18
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Arquivo RafaelRibeiro.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 84 instrucoes, com 196 leituras e 28 escritas (224 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 124 instrucoes, com 284 leituras e 36 escritas (320 acessos)
+ Teste 3: HLT -- Resultado correto
+  Executadas 164 instrucoes, com 372 leituras e 44 escritas (416 acessos)
+ Teste 4: HLT -- Resultado correto
+  Executadas 204 instrucoes, com 460 leituras e 52 escritas (512 acessos)
+ Teste 5: HLT -- Resultado correto
+  Executadas 244 instrucoes, com 548 leituras e 60 escritas (608 acessos)
+ Executadas um total de 820 instrucoes, com 1860 leituras e 220 escritas (2080 acessos)
+ Todos os testes corretos
+

@@ -1,0 +1,102 @@
+;Printa numeros de 2x1 à 4x1 no visor
+ORG 1024
+quocienteInteiro: DW 34
+quocienteFracionario: DW 7
+quocienteFracionarioCopia: DW 7
+bit1: DW
+bit0: DW
+
+ORG 65500
+VISOR: DW
+
+ORG 0
+
+MOV #H8000 R6
+MOV quocienteFracionario, quocienteFracionarioCopia
+MOV quocienteInteiro, R1
+JSR R7, pegaDigitos
+
+CLR R3
+MOV #bit1, R0
+JSR R7 printaNumeros
+
+HLT
+
+pegaDigitos:
+milhares: 
+	;CLR R0
+	;MOV #1000, R2
+        ;JSR R7 _S_DIVIDIR
+	;MOV R0, bit3
+centenas:
+	;CLR R0
+	;MOV #100, R2
+        ;JSR R7 _S_DIVIDIR
+	;MOV R0, bit2
+dezenas: 
+	 CLR R0
+	 MOV #10, R2
+         JSR R7 _S_DIVIDIR
+	 MOV R0, bit1
+unidades:
+	 CLR R0
+	 MOV R1, bit0
+
+	 RTS R7
+
+printaNumeros:
+
+	 MOV #2, R4
+continua:ADD #48 (R0)
+	 MOV (R0)+ VISOR(R3)
+	 INC R3
+	 SOB R4,continua
+	 MOV #44 VISOR(R3)
+         INC R3
+         ADD #48, quocienteFracionarioCopia
+         MOV quocienteFracionarioCopia, VISOR(R3)
+	 RTS R7
+
+_S_DIVIDIR:
+          TST R2                ; testa divisor
+          BNE __NAO_ZERO        ; se <> zero, continua
+          CCC V                 ; indica divisao por zero
+          RTS R7                ; retorna ao ponto de chamada
+
+__NAO_ZERO:
+          CMP R0,R2             ; testa se dividendo(msb)
+                                ; e' >= que o divisor
+          BCC __INDICA_ESTOURO  ; se for, indicar estouro
+                                ; note: BCC equivale a um
+                                ; BGE para int. positivos
+;>
+          MOV R3,-(R6)          ; salva R3 na pilha
+          MOV R4,-(R6)          ; salva R4 na pilha
+          MOV R5,-(R6)          ; salva R5 na pilha
+          MOV R0,R3             ; copia dividendo para
+          MOV R1,R4             ; R3 e R4 (=q no final)
+          MOV #16,R5            ; inicializa contador
+          ASL R4                ; desloca dividendo p/a
+          ROL R3                ; esquerda e abre espaco
+          BCS __SUBTRAI_DIVISOR ; p/um bit do quociente
+          CMP R3,R2             ; se n+1 msbits do divid.
+          BCS __BIT_ZERO        ; maiores que divisor (= BLT p/inteiros positivos)
+__SUBTRAI_DIVISOR:
+          SUB R2,R3             ; subtrai divisor e
+          INC R4                ; ajusta bit do quociente
+__BIT_ZERO:
+          SOB R5,16             ; decr. R5; se <>0, repete
+          MOV R3,R1             ; copia resto para R1
+          MOV R4,R0             ; copia quociente p/R0
+          MOV (R6)+,R5          ; restaura
+          MOV (R6)+,R4          ; registradores
+          MOV (R6)+,R3          ; de trabalho
+          CCC V Z               ; limpa cod. de condicao
+          RTS R7                ; retorna ao ponto de chamada
+;>
+__INDICA_ESTOURO:
+          SCC V                 ; indica overflow e nao
+          CCC Z                 ; divisao por zero
+          RTS R7                ; retorna ao ponto de chamada
+
+	

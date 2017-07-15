@@ -1,0 +1,49 @@
+ORG 128
+tamanho: DB
+valor_i: DB
+valor_j: DB
+soma: DB 0
+matriz: DAB [25]
+
+
+
+ORG 0
+
+LDR A #0
+STR A soma
+
+           LDR A tamanho
+nova_linha:JZ FIM
+           STR A valor_i
+                 LDR B tamanho
+     nova_coluna:JZ nova_linhaPRE
+                 SUB B valor_i
+                 JZ vai_soma
+                 ADD B valor_i
+     colunaMenos:SUB B #1
+                 JMP nova_coluna
+
+nova_linhaPRE: LDR A valor_i
+               SUB A #1
+               JMP nova_linha
+
+vai_soma: JSR multi
+          ADD B valor_i
+          STR B valor_j
+          ADD X valor_j
+          SUB X #1
+          LDR A soma
+          ADD A matriz,X
+          STR A soma
+          JMP colunaMenos
+          
+multi:NOP
+      LDR X #0      
+      SUB A #1
+ laco:JZ multi,I
+      ADD X tamanho
+      SUB A #1
+      JMP laco
+
+FIM: HLT
+  

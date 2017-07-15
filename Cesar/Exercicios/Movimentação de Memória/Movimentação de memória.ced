@@ -1,0 +1,23 @@
+ORG 1024
+
+src: DW 1032
+dst: DW 1042
+size: DW 8
+
+ORG 1032
+4
+5
+8
+9
+
+ORG 0
+
+	MOV src, R0
+	MOV dst, R1
+	MOV size, R2
+	ASR R2
+	
+loop:	MOV (R0)+, (R1)+
+	SOB R2, loop
+	HLT
+		

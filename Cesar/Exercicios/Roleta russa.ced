@@ -1,0 +1,22 @@
+TECST: EQU 65498
+TECDAT: EQU 65499
+VISOR: EQU 65500
+
+;Rodar um visor de 0 até 9 até uma tecla for apertada
+
+ORG 0
+
+MOV #8000 R6
+
+inicio:
+MOV #48 VISOR ;; 48 representa 0 na tabela asc 2
+CLR TECST
+
+loop:CMP VISOR, #57
+     BEQ inicio
+     INC VISOR   
+     CMP TECST, #128
+     BNE loop
+     CLR TECST
+     HLT
+     

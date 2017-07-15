@@ -1,0 +1,33 @@
+ORG 1024
+num: DW 
+resultado: DW
+
+ORG 0 
+
+  MOV #1024, R6        ;;Pilha irá começar no endereço 1024
+
+          MOV num,R2   ;; Copia a variavel num para reg 2
+          JSR R7, fat  ;; Chama a função fatorial
+          MOV #0, R1   ;; Move a constante 0 para o reg 1
+          MOV num,R2   ;; Copia novamente a variavel num para reg 2
+          ADD -4(R6), R1;;Faz (reg 1)+= fatorial do (valor-1), (reg 2) vezes
+          SOB R2, 8
+          MOV R1, resultado;; Move o resultado para resultado
+          HLT
+
+          
+         fat:  DEC R2          ;; Decrementa reg 2 
+               MOV R2, -(R6)   ;; Coloca reg 2 no topo da pilha
+               CMP (R6), #3    ;; Verifica esse valor é menor do que 3
+               BLT pula        ;; Se menor do que 3, seu fatorial será ele mesmo
+               JSR R7,fat      ;; Se não, chama a função fatorial desse valor
+               MOV (R6),R0     ;; O topo da pilha é movido para reg 0
+               MOV #0, R1      ;; Move a constante 0 para o reg 1
+               MOV -4(R6), R3  ;; Move o valor que valor-1, que está 4 endereços acima do topo da pilha (valor), para reg 3
+         loop: ADD R3, R1      ;; Faz (reg 1)+= fatorial do (valor-1), (valor) vezes
+               SOB R0, loop    ;;
+               MOV R1, (R6)    ;; Copia o resultado para o topo da pilha
+         pula: ADD #2, R6      ;; Incrementa o stach pointer
+               RTS R7          ;; Retorna para o endereço apontado pelo stack pointer
+
+ 

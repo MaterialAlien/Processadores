@@ -1,0 +1,56 @@
+ORG 58
+fator_multi: DB
+
+ORG 125
+valor_i: DB
+valor_j:  DB
+valor: DB
+dimensao: DB 3
+
+ORG 130
+byte_inicialM: DB
+
+ORG 180
+byte_inicialT: DB
+
+
+
+ORG 0
+           LDR A #0
+           STR A valor
+           LDR A dimensao
+           SUB A #1
+nova_linha:JN FIM
+           STR A valor_i
+           
+            LDR B dimensao
+            SUB B #1
+nova_coluna:JN nova_linhaPRE
+            STR B valor_j
+            LDR A #125
+            STR A fator_multi
+            JSR inverte
+            ADD X valor_j
+            LDR A byte_inicialM,X
+            STR A valor
+            LDR A #126
+            STR A fator_multi
+            JSR inverte
+            ADD X valor_i
+            LDR A valor
+            STR A byte_inicialT,X
+            SUB B #1
+            JMP nova_coluna
+
+nova_linhaPRE: LDR A valor_i
+               SUB A #1
+               JMP nova_linha     
+
+inverte:   NOP
+           LDR X #0
+           LDR A fator_multi
+ continua: JZ inverte,I
+           ADD X dimensao
+           SUB A #1
+           JMP continua         
+FIM: HLT  

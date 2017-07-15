@@ -1,0 +1,19 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+INICIO_DADOSMAIS1            186                  BA
+INICIO_DADOSMAIS2            187                  BB
+INICIO_DADOSMAIS3            188                  BC
+PRIMEIRO_OPERANDO            189                  BD
+SEGUNDO_OPERANDO            190                  BE
+TAMANHO_NOVO            191                  BF
+INICIO_DADOS            192                  C0
+TAMANHO               193                  C1
+BYTE3                 194                  C2
+BYTE2                 195                  C3
+BYTE1                 196                  C4
+BYTE0                 197                  C5
+BYTE_INICIAL1             78                  4E
+BYTE_INICIAL2             85                  55
+FIM                    55                  37
+SOMATORIOXOR             66                  42
+CHAMA_LACO             73                  49

@@ -1,0 +1,201 @@
+Correcao do trabalho pratico Ramses - 2017/01
+Cálculo de um código "hash" (não seria CRC?)
+Teste numero 1
+Caso de teste 1: 0x11224488 XOR 0x22448811 XOR 0x11224488
+End.192 recebe 198
+End.193 recebe 12
+End.198 recebe 17
+End.199 recebe 34
+End.200 recebe 68
+End.201 recebe 136
+End.202 recebe 34
+End.203 recebe 68
+End.204 recebe 136
+End.205 recebe 17
+End.206 recebe 17
+End.207 recebe 34
+End.208 recebe 68
+End.209 recebe 136
+End.194 deve receber 34
+End.195 deve receber 68
+End.196 deve receber 136
+End.197 deve receber 17
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 2
+Caso de teste 2: ver enunciado do trabalho
+End.192 recebe 210
+End.193 recebe 8
+End.210 recebe 18
+End.211 recebe 52
+End.212 recebe 86
+End.213 recebe 120
+End.214 recebe 171
+End.215 recebe 205
+End.216 recebe 239
+End.217 recebe 1
+End.194 deve receber 185
+End.195 deve receber 249
+End.196 deve receber 185
+End.197 deve receber 121
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 3
+Caso de teste 3:  ver enunciado do trabalho
+End.192 recebe 220
+End.193 recebe 16
+End.220 recebe 26
+End.221 recebe 43
+End.222 recebe 60
+End.223 recebe 77
+End.224 recebe 94
+End.225 recebe 111
+End.226 recebe 240
+End.227 recebe 225
+End.228 recebe 210
+End.229 recebe 195
+End.230 recebe 180
+End.231 recebe 165
+End.232 recebe 170
+End.233 recebe 187
+End.234 recebe 205
+End.235 recebe 239
+End.194 deve receber 60
+End.195 deve receber 60
+End.196 deve receber 181
+End.197 deve receber 230
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 4
+Caso de teste 4: 0x55555555 XOR 0xAAAAAAAA
+End.192 recebe 198
+End.193 recebe 8
+End.198 recebe 85
+End.199 recebe 85
+End.200 recebe 85
+End.201 recebe 85
+End.202 recebe 170
+End.203 recebe 170
+End.204 recebe 170
+End.205 recebe 170
+End.194 deve receber 255
+End.195 deve receber 255
+End.196 deve receber 255
+End.197 deve receber 255
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 5
+Caso de teste 5: somente uma palavra: 0x1A2B3C4D
+End.192 recebe 198
+End.193 recebe 4
+End.198 recebe 26
+End.199 recebe 43
+End.200 recebe 60
+End.201 recebe 77
+End.194 deve receber 26
+End.195 deve receber 43
+End.196 deve receber 60
+End.197 deve receber 77
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 6
+Caso de teste 5: tamanho = 0, HASH deve ser 0
+End.192 recebe 255
+End.193 recebe 0
+End.194 deve receber 0
+End.195 deve receber 0
+End.196 deve receber 0
+End.197 deve receber 0
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Teste numero 7
+Caso de teste 6: tamanho = 56, HASH deve ser 0xFFFFFFFF
+End.192 recebe 200
+End.193 recebe 56
+End.200 recebe 1
+End.201 recebe 1
+End.202 recebe 1
+End.203 recebe 1
+End.204 recebe 2
+End.205 recebe 2
+End.206 recebe 2
+End.207 recebe 2
+End.208 recebe 4
+End.209 recebe 4
+End.210 recebe 4
+End.211 recebe 4
+End.212 recebe 8
+End.213 recebe 8
+End.214 recebe 8
+End.215 recebe 8
+End.216 recebe 16
+End.217 recebe 16
+End.218 recebe 16
+End.219 recebe 16
+End.220 recebe 32
+End.221 recebe 32
+End.222 recebe 32
+End.223 recebe 32
+End.224 recebe 64
+End.225 recebe 64
+End.226 recebe 64
+End.227 recebe 64
+End.228 recebe 128
+End.229 recebe 128
+End.230 recebe 128
+End.231 recebe 128
+End.232 recebe 15
+End.233 recebe 15
+End.234 recebe 15
+End.235 recebe 15
+End.236 recebe 240
+End.237 recebe 240
+End.238 recebe 240
+End.239 recebe 240
+End.240 recebe 15
+End.241 recebe 15
+End.242 recebe 15
+End.243 recebe 15
+End.244 recebe 240
+End.245 recebe 240
+End.246 recebe 240
+End.247 recebe 240
+End.248 recebe 85
+End.249 recebe 85
+End.250 recebe 85
+End.251 recebe 85
+End.252 recebe 85
+End.253 recebe 85
+End.254 recebe 85
+End.255 recebe 85
+End.194 deve receber 255
+End.195 deve receber 255
+End.196 deve receber 255
+End.197 deve receber 255
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 10000
+
+Arquivo RafaelRibeiro.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 124 instrucoes, com 284 leituras e 36 escritas (320 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 84 instrucoes, com 196 leituras e 28 escritas (224 acessos)
+ Teste 3: HLT -- Resultado correto
+  Executadas 164 instrucoes, com 372 leituras e 44 escritas (416 acessos)
+ Teste 4: HLT -- Resultado correto
+  Executadas 84 instrucoes, com 196 leituras e 28 escritas (224 acessos)
+ Teste 5: HLT -- Resultado correto
+  Executadas 44 instrucoes, com 108 leituras e 20 escritas (128 acessos)
+ Teste 6: HLT -- Resultado correto
+  Executadas 8 instrucoes, com 16 leituras e 4 escritas (20 acessos)
+ Teste 7: HLT -- Resultado correto
+  Executadas 564 instrucoes, com 1252 leituras e 124 escritas (1376 acessos)
+ Executadas um total de 1072 instrucoes, com 2424 leituras e 284 escritas (2708 acessos)
+ Todos os testes corretos
+

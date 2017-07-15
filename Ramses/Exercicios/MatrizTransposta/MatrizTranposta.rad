@@ -1,0 +1,58 @@
+ORG 125
+valor_i: DB
+valor_j:  DB
+valor: DB
+dimensao: DB 3
+
+ORG 130
+
+byte_inicialM: DB
+
+ORG 180
+
+byte_inicialT: DB
+
+ORG 0
+           LDR A #0
+           STR A valor
+           LDR A dimensao
+           SUB A #1
+nova_linha:JN FIM
+           STR A valor_i
+           
+            LDR B dimensao
+            SUB B #1
+nova_coluna:JN nova_linhaPRE
+            STR B valor_j
+            JSR pega_valor
+            ADD X valor_j
+            LDR A byte_inicialM,X
+            STR A valor
+            JSR coloca_valor
+            ADD X valor_i
+            LDR A valor
+            STR A byte_inicialT,X
+            SUB B #1
+            JMP nova_coluna
+
+nova_linhaPRE: LDR A valor_i
+               SUB A #1
+               JMP nova_linha     
+
+pega_valor:NOP
+           LDR X #0
+           LDR A valor_i
+ continua1:JZ pega_valor,I
+           ADD X dimensao
+           SUB A #1
+           JMP continua1
+
+coloca_valor:NOP
+             LDR X #0
+             LDR A valor_j
+   continua2:JZ coloca_valor,I
+             ADD X dimensao
+             SUB A #1
+             JMP continua2           
+FIM: HLT         
+ 

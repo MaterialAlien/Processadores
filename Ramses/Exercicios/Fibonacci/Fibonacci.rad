@@ -1,0 +1,20 @@
+ORG 128
+q_termos: DB
+
+ORG 131
+byte_inicial: DB
+
+ORG 0
+
+      LDR X #0
+      SUB X q_termos
+loop: JZ fim
+      ADD X q_termos
+      LDR A byte_inicial-2,X
+      ADD A byte_inicial-1,X
+      STR A byte_inicial,X
+      ADD X #1
+      SUB X q_termos
+      JMP loop
+
+fim: HLT

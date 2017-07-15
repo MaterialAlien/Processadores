@@ -1,0 +1,34 @@
+Correção: Calculo de n valores de fibonacci 
+Teste numero 1
+Caso 1:
+End.128 recebe 3
+End.129 recebe 3
+End.130 recebe 5
+End.131 deve receber 8
+End.132 deve receber 13
+End.133 deve receber 21
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 2
+Caso 2:
+End.128 recebe 6
+End.129 recebe 8
+End.130 recebe 13
+End.131 deve receber 21
+End.132 deve receber 34
+End.133 deve receber 55
+End.134 deve receber 89
+End.135 deve receber 144
+End.136 deve receber 233
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Arquivo Fibonacci.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 28 instrucoes, com 65 leituras e 3 escritas (68 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 52 instrucoes, com 122 leituras e 6 escritas (128 acessos)
+ Todos os testes corretos
+ Todos os testes corretos
+

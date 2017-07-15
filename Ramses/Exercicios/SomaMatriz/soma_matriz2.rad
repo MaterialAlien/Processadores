@@ -1,0 +1,64 @@
+ORG 128
+dimensao:DB 
+contador:DB
+valor_i: DB
+valor_j: DB 
+valor_i_menosUm: DB
+contadorA:DB
+contadorB:DB
+
+
+ORG 135
+byte_inicial:DB
+
+ORG 0
+            LDR A #0
+            STR A valor_i
+            LDR A dimensao
+            STR A contadorA
+nova_linha: LDR A contadorA
+            SUB A #1
+            JN FIM
+            STR A contadorA
+            LDR A valor_i
+            ADD A #1
+            STR A valor_i
+
+            LDR A #0
+            STR A valor_j
+            LDR A dimensao
+            STR A contadorB
+nova_coluna:LDR B contadorB
+            SUB B #1
+            JN nova_linha
+            STR B contadorB
+            LDR B valor_j
+            ADD B #1
+            STR B valor_j
+            JSR multi
+
+            ADD X valor_j
+            SUB X #1
+            LDR A valor_j
+            ADD A valor_i
+            STR A byte_inicial,X
+            JMP nova_coluna
+
+multi:      NOP
+            LDR X valor_i
+            SUB X #1
+            STR X valor_i_menosUm
+            LDR B dimensao
+   
+            LDR X #0
+continua:   ADD X valor_i_menosUm
+            SUB B #1
+            JZ multi,I
+            JMP continua
+                       
+FIM: HLT
+      
+      
+
+
+

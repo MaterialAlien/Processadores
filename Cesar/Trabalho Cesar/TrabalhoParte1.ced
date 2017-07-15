@@ -1,0 +1,558 @@
+
+;Rafael Júnior Ribeiro
+
+;
+;==========================================================================
+;
+;	Programa base para desenvolvimento do trabalho do CESAR
+;
+;	Versão: 1.00 de 2017/1
+;
+;	Áreas de memória
+;	h0000 - h7FFF -> Programa Principal, que deve iniciar em h0000, e área de stack.
+;	h8000 - h80FF -> Variáveis de comunicação entre o PP e a Interrupção, conforme especificado.
+;	h8100 - h81FF -> Rotina de inicialização de periféricos e interrupção, que deve iniciar em h8100.
+;	h8200 - h83FF -> Rotina de atualização do movimento da Sonda, que deve inicia em h8200. Deve ser chamada a cada 100ms.
+;	h8400 - hFEFF -> Tratador de Interrupção. Pode ser colocado em qualquer endereço dessa área de memória.
+;	hFF80 - hFFFF -> Endereços de periféricos e controle do processador, conforme especificado no processador.
+;
+;
+;==========================================================================
+;
+
+;==========================================================================
+;	FF80 - FFFF: área reservada para os periféricos
+;==========================================================================
+	org	hff80
+
+; Acesso em 16 bits
+	org	hffbe
+IVET:	dw	0		; Vetor de interrupção
+
+; Acesso em 8 bits
+	org	hffc0
+	dab	[23]
+TIMDT:	db	0		; Registro de programação do timer
+INTS:	db	0		; INTERRUPT STATUS: IP x x x . x x IPStec IPStim
+INTE:	db	0		; INTERRUPT ENABLE: IE x x x . x x IEStec IEStim
+TECST:	db	0		; Status do teclado
+TECDT:	db	0		; Dado do teclado
+VISOR:	dab	[36]		; Portas de acesso ao visor
+
+;
+;==========================================================================
+;	8000 - 80FF: variáveis de comunicação entre o PP e as INTs
+;==========================================================================
+	org	h8000
+ON:		DW	0	; unsigned short ON
+AR:		DW	0	; unsigned short AR
+GPS:		DW	0	; unsigned short GPS 
+DISTANCIA:	DAW	[2]	; unsigned int DISTANCIA
+TICK:		DW	0	; unsigned short TICK
+CARGA:		DW	0	; unsigned short CARGA
+VELOCIDADE:	DW	0	; unsigned short SPEED
+
+;==========================================================================
+; Área para o PROGRAMA PRINCIPAL
+;==========================================================================
+
+STACK:	EQU	H8000
+	org	0
+
+        clr     INTE		; Desabilita todas as interrup??es
+	mov	#STACK,r6	; Inicializa R6 (stack pointer)
+	jsr	r7,Inicializacao; Chama rotina de inicializa??o (da ISR?)
+
+	; Inicializacao da sonda
+        mov     #h30,IntD	; DISTANCIA = d = 3.200.000 mm;
+        mov     #hD400,IntD+2
+        mov     IntD,DISTANCIA
+        mov     IntD+2,DISTANCIA+2
+        mov     #10000,IntC	; c = 10000;
+        clr     IntV		; v = 0;
+	
+	or	#h80,INTE	; Habilita as interrup??es
+	
+; exibe mensagem de formata??o do visor
+        mov     #msgid-1,R0	; Mensagem b?sica
+        mov     #VISOR,R1	; Inicio do visor
+loopMsg:
+	mov	(r0),(r1)
+	inc	r0
+	inc	r1
+	bne	loopMsg
+	
+        clr     TICK
+	
+; monitora a vari?vel TICK
+loopTICK:
+        tst     TICK
+        beq     continueTICK
+	
+        clr     TICK
+	mov	VISOR+10,R0
+	inc	R0
+	cmp	R0,#'9'
+	ble	saveVisor
+	mov	#'0',R0
+saveVisor:
+	mov	R0,VISOR+10
+
+continueTICK:
+
+
+; indica se ON  est? com 0 ou diferente de zero
+testa_ON:
+        tst     ON
+        bne     ON_nao_zero
+ON_zero:
+        mov     #'=',VISOR+22
+        br      testa_AR
+ON_nao_zero:
+        mov     #'>',VISOR+22
+testa_AR:
+        tst     AR
+        bne     AR_nao_zero
+AR_zero:
+        mov     #'=',VISOR+31
+        jmp     loopTICK
+AR_nao_zero:
+        mov     #'>',VISOR+31
+        jmp     loopTICK
+        
+;
+; Mensagem b?sica do programa de teste. Deve ter 36 caracteres
+msgid:  dab     'Tempo =   0 segs | ON = 0 | AR = 0  '
+;
+
+
+
+;==========================================================================
+; Área para os TRATADORES DE INTERRUPÇÃO
+;==========================================================================
+
+;==========================================================================
+;	8100: inicialização da interrupcao e perifericos
+;==========================================================================
+	org	h8100
+Inicializacao:
+
+;Inicialização da variáveis que forem necessárias
+JMP AQUI
+TICKCNT: DW 10 ; Variavel usada para contar o número de interrupções de tempo
+
+AQUI:
+;Inicialização dos periféricos (teclado, visor e timer)
+	CLR TECST   ; TECST=0;
+	CLR INTS    ; INTS=0;
+	CLR TIMDT   ; TIMDT=0;
+	CLR TICK    ; TICK=0;
+	
+;Inicialização das interrupções
+	MOV #H8400, IVET   ; IVET=h8400;
+	MOV #3, INTE       ; INTE=3;
+	RTS R7             
+	
+	
+;==========================================================================
+;	8200: deve ser chamado a cada 100ms,
+;		para atualizar as informações da Sonda
+;==========================================================================
+	org	h8200
+Sonda:
+	; N = 0;
+	; if (ON!=0 && AR!=0 && c!=0) N=1;
+	clr	Sonda_N
+	tst	ON
+	beq	_Sonda1
+	tst	AR
+	beq	_Sonda1
+	tst	IntC
+	beq	_Sonda1
+	mov	#1,Sonda_N
+_Sonda1:
+
+	;x = 99 * v;
+	mov	#99,-(r6)		; r0:r1 = a x b
+	mov	IntV,-(r6)
+	mov	#LIB_MULT16,r5
+	jsr	r7,SysCall
+	add	#4,r6
+	
+	;if (N!=0) x += 18200;
+	tst	Sonda_N
+	beq	_Sonda2
+	add	#0,r0
+	add	#18200,r1
+	adc	r0
+
+_Sonda2:
+
+	;v = x / 100;
+	mov	#100,-(r6)	; R0:R1 = a/b; R2:R3 = a%b
+	mov	#0,-(r6)
+	mov	r1,-(r6)
+	mov	r0,-(r6)
+	mov	#LIB_DIV32,r5
+	jsr	r7,SysCall
+	add	#8,r6
+	mov	r1,IntV
+	tst	r0		; if (Overflow) v=65536
+	beq	_Sonda3
+	mov	#hFFFF,IntV
+_Sonda3:
+	
+	; x = v / 10;
+	mov	#10,-(r6)		; R0 = a/b; R1 = a%b
+	mov	IntV,-(r6)
+	mov	#LIB_DIV16,r5
+	jsr	r7,SysCall
+	add	#4,r6
+	
+	; d = d - x
+	; if (d<0) d=0;
+	sub	r0,IntD+2
+	sbc	IntD	
+	bge	_Sonda4
+	clr	IntD
+	clr	IntD+2
+_Sonda4:
+			
+	; if (ON!=0) {
+	;	int g;
+	;	g=1;
+	;	if (AR!=0) g=6;
+	;	if (c>=g) c=c-g; else c=0;
+	;}
+	tst	ON
+	beq	_Sonda6
+	mov	#1,r0
+	tst	AR
+	beq	_Sonda51
+	mov	#6,r0
+_Sonda51:
+	cmp	IntC,r0
+	blt	_Sonda5
+	sub	r0,IntC
+	br	_Sonda6
+_Sonda5:
+	clr	IntC
+_Sonda6:
+
+	; if (d==0) v=0;
+	tst	IntD
+	bne	_Sonda7
+	clr	IntV
+_Sonda7:
+
+	; if (c==0) ON=0;
+	tst	IntC
+	bne	_Sonda8
+	clr	ON
+_Sonda8:
+
+	; SPEED = v;
+	mov	IntV,VELOCIDADE
+		
+	; GPS = d/300;
+	mov	#300,-(r6)
+	mov	#0,-(r6)
+	mov	IntD+2,-(r6)
+	mov	IntD,-(r6)
+	mov	#LIB_DIV32,r5
+	jsr	r7,SysCall
+	add	#8,r6
+	mov	r1,GPS
+	
+	; CARGA = c;
+	mov	IntC,CARGA
+
+	rts	r7
+
+Sonda_N:	dw	0
+IntD:		daw	0,0	; int d
+IntC:		dw	0	; unsigned short c
+IntV:		dw	0	; unsigned short v
+
+
+SysCall:
+	add	r5,r5
+	jmp	(libTab(r5))
+	
+LIB_INIT:	EQU	0
+LIB_MULT16:	EQU	1
+LIB_DIV16:	EQU	2
+LIB_MULT32:	EQU	3
+LIB_DIV32:	EQU	4
+
+libTab:	DW	_libInit
+	DW	_mult16
+	DW	_div16
+	DW	_mult32
+	DW	_div32
+	
+_libInit:
+	rts	r7
+	
+_mult16:
+	clr	r0
+	clr	r1
+	
+	clr	r2
+_mult16_1:
+	asr	4(r6)
+	bcc	_mult16_2
+	add	r2,r0
+	add	2(r6),r1
+	adc	r0
+_mult16_2:
+	asl	2(r6)
+	rol	r2
+	tst	4(r6)
+	bne	_mult16_1
+	rts	r7
+
+_div16:
+	mov	r2,-(r6)
+	
+	clr	r0
+	clr	r1
+	mov	#16,r2
+_div16_1:
+	asl	4(r6)
+	rol	r1
+	asl	r0
+	cmp	r1,6(r6)
+	beq	_div16_2
+	bls	_div16_3
+_div16_2:
+	sub	6(r6),r1
+	or	#1,r0
+
+_div16_3:
+	sob	r2,_div16_1
+	
+	mov	(r6)+,r2
+	rts	r7
+	
+_mult32:
+	clr	r0
+	clr	r1
+	clr	r2
+	clr	r3
+	clr	r4
+	clr	r5
+_mult32_1:
+	asr	6(r6)
+	ror	8(r6)
+	bcc	_mult32_2
+	
+	add	r4,r0
+	add	r5,r1
+	adc	r0
+	add	2(r6),r2
+	adc	r1
+	adc	r0
+	add	4(r6),r3
+	adc	r2
+	adc	r1
+	adc	r0
+		
+_mult32_2:
+	asl	4(r6)
+	rol	2(r6)
+	rol	r4
+	rol	r5
+	tst	6(r6)
+	bne	_mult32_1
+	tst	8(r6)
+	bne	_mult32_1
+	rts	r7
+
+_div32:
+	clr	r0
+	clr	r1
+	clr	r2
+	clr	r3
+	mov	#32,r4
+_div32_1:
+	asl	4(r6)
+	rol	2(r6)
+	rol	r3
+	rol	r2
+	asl	r1
+	rol	r0
+	cmp	r2,6(r6)
+	bne	_div32_2
+	cmp	r3,8(r6)
+	beq	_div32_4
+_div32_2:
+	bls	_div32_3
+_div32_4:
+	sub	6(r6),r2
+	sub	8(r6),r3
+	sbc	r2
+	or	#1,r1
+
+_div32_3:
+	sob	r4,_div32_1
+	rts	r7
+
+;==========================================================================
+;	8400: Tratadores de interrupção. 
+;==========================================================================	
+
+ORG #H8400
+
+MOV R0, -(R6)                                 ;\ 
+MOV R1, -(R6)                                 ; |  void interrupção()
+MOV R2, -(R6)                                 ; |     {
+MOV R3, -(R6)                                 ; |       R6-=1;  *R6=R0;                                 
+MOV R4, -(R6)                                 ; |       R6-=1;  *R6=R1;
+MOV R5, -(R6)                                 ; |       R6-=1;  *R6=R2; 
+                                              ; |       R6-=1;  *R6=R3; 
+CLR TECST                                     ; |       R6-=1;  *R6=R4;         
+MOV TECDT, R1                                 ; |       R6-=1;  *R6=R5
+MOV INTS, R0                                  ; |      
+                                              ; |       TECST=0;
+                                              ; |       TECDT=0;
+CMP R0, #129                                  ; |       R1=TECDT;
+BEQ IntTimer                                  ; |       R0= INTS;
+CMP R0, #130                                  ; |       
+BEQ IntTeclado                                ; |       if (R0==129) IntTimerISR();  
+CMP R0, #131                                  ; |        
+BEQ IntTecladoeTimer                          ; |	else if(R0==130) IntTecladoISR(); 
+                                              ; |       
+                                              ; |       else if (R0==131) {IntTecladoISR(); IntTimerISR();}
+IntTimer:                                     ; |       
+            JSR R7 IntTimerISR                ; |       goto returnFROMinterrupt;
+	    JMP returnFROMinterrupt           ; |     } 
+	                                      ; |     
+IntTeclado:                                   ; |
+	    JSR R7 IntTecladoISR              ; |
+	    JMP returnFROMinterrupt           ; |
+                                              ; |
+IntTecladoeTimer:                             ; |
+	    JSR R7 IntTecladoISR              ; |
+	    JSR R7 IntTimerISR                ; |
+	    JMP returnFROMinterrupt           ;/
+            
+	                                      
+;===============> Interrupção por timer <============================
+
+IntTimerISR:                         ;\
+	JSR R7 sonda                 ; |
+                                     ; | void IntTimerISR()
+ 	MOV GPS,R0                   ; |     {
+ 	MOV #300,R1                  ; |      	R0=GPS; 
+ 	JSR R7,_S_MULTIPLICAR        ; |        R1=300;
+ 	MOV R0, distancia            ; |       	distancia= _S_MULTIPLICAR(R0, R1);      
+ 	MOV R1, distancia+2          ; |
+                                     ; |
+	DEC TICKCNT                  ; |        TICKCNT-=1;
+	BEQ escreve_tick	     ; |        if(TICKCNT==0) 
+	RTS R7                       ; |        	{TICK=1; TICKCNT=10;}
+                                     ; |        return;            
+escreve_tick:                        ; |      }
+	                             ; |                                     
+	MOV #1, TICK                 ; |
+	MOV #10, TICKCNT             ; |
+	RTS R7                       ;/
+
+
+;-------------------->Rotina de multiplicação | GPS * 300 |<--------------------
+
+_S_MULTIPLICAR:
+          MOV R2,-(R6)          ; salva R2 na pilha
+          MOV R3,-(R6)          ; salva R3 na pilha
+          MOV #16,R2            ; inicializa contador
+          CLR R3                ; limpa R3
+__INICIO_LACO:
+          ROR R1                ; lsb do multiplicad. em C
+          BCC __NAO_SOMAR       ; se era zero, nao soma
+          ADD R0,R3             ; acumula multiplicando
+                                ; no produto parcial
+__NAO_SOMAR:
+          ROR R3                ; lsb de R3 vai para C
+          BCC __FIM_LACO        ; se era zero, sai do laco
+          ADD #32768,R1         ; soma 1 ao bit 15 de R1
+__FIM_LACO:
+          SOB R2,__INICIO_LACO  ; decrementa contador e
+                                ; repete se <> 0
+          MOV R3,R0             ; resultado de R3 para R0
+          MOV (R6)+,R3          ; restaura R3
+          MOV (R6)+,R2          ; restaura R2
+          TST R0                ; se R0 <> 0
+          BNE __ALERTA_ESTOURO  ; vai indicar estouro
+          CCC V                 ; senao, desliga V
+          RTS R7                ; retorna ao progr. princ.
+__ALERTA_ESTOURO:
+          SCC V                 ; liga indicador: estouro            
+          RTS R7                ; retorna ao ponto de chamada
+
+;===============> Interrupção por teclado =======================
+
+IntTecladoISR:                                   ;\
+                                                 ; |
+        CLR TECST                                ; | void intTecladoISR()
+	                                         ; |    {                                           ; |       TECST=0;
+	CMP R1, #79                              ; |       TECST=0; 
+	BEQ ligaDesligaSonda                     ; |         
+	CMP R1, #111                             ; |       if(R1=='O' || R1=='o')
+	BEQ ligaDesligaSonda                     ; |         {
+                                                 ; |             if (ON==0) ON=1;
+	CMP R1, #87                              ; |             else ON=0;
+	BEQ aceleraSonda                         ; |         }
+	CMP R1, #119                             ; |       
+	BEQ aceleraSonda                         ; |       else if(R1=='W' || R1=='w') AR=1;
+                                                 ; |            
+	CMP R1, #83                              ; |       else if(R1=='S' || R1=='s') AR=0;
+	BEQ descaceleraSonda                     ; |     
+	CMP R1, #115                             ; |       return;      
+	BEQ descaceleraSonda                     ; |     }
+                                                 ; |
+	RTS R7                                   ;/
+
+;-------------------->Tecla 'O' apertado<---------------------
+
+ligaDesligaSonda: 
+	CMP ON, #1
+	BEQ DesligaSonda
+LIGAsonda:
+	MOV #1, ON
+	RTS R7	
+DESLIGAsonda:
+	MOV #0, ON
+	RTS R7
+;-------------------->Tecla 'W' apertado<---------------------
+aceleraSonda:
+	MOV #1 AR
+	RTS R7
+;-------------------->Tecla 'S' apertado<---------------------
+descaceleraSonda:
+	MOV #0 AR
+	RTS R7
+
+
+;============> Retorno da interrupção <===========================================
+	
+ returnFROMinterrupt:
+
+	MOV (R6)+, R5 ;\  R0=*R6; R6+=1;
+	MOV (R6)+, R4 ; | R1=*R6; R6+=1;
+	MOV (R6)+, R3 ; | R2=*R6; R6+=1;
+	MOV (R6)+, R2 ; | R3=*R6; R6+=1;
+	MOV (R6)+, R1 ; | R4=*R6; R6+=1;
+	MOV (R6)+, R0 ; | R5=*R6; R6+=1;
+        CLR TECST     ; | TECST=0;
+	CLR INTS      ; | INTS=0;
+	RTI           ;/  return;
+
+
+
+
+	
+
+	
+		
+	

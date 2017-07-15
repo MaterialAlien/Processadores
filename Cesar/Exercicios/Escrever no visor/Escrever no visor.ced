@@ -1,0 +1,33 @@
+	
+TECST:	EQU	65498
+TECDAT:	EQU	65499
+VISOR:	EQU	65500
+
+
+ORG	0
+MOV #8000,R6
+CLR R1
+CLR TECST
+
+escreve_dado: 
+
+	JSR R7, espera_dado
+
+	CLR TECST
+	CMP TECDAT,#27 ;; ABORTA SE TECLAR ESC
+	BEQ FIM
+	MOV TECDAT,VISOR(R1)
+	INC R1
+	BR escreve_dado
+
+espera_dado:
+
+	CMP TECST, #H80
+	BNE espera_dado
+	RTS R7
+
+FIM: HLT
+
+
+
+

@@ -1,0 +1,16 @@
+Símbolo     Valor Decimal   Valor Hexadecimal
+-------     -------------   -----------------
+DIMENSAO              127                  7F
+DIMENSAO_COPIA            128                  80
+CONTADOR              129                  81
+VALOR_I               130                  82
+VALOR_J               131                  83
+VALOR_I_MENOSUM            132                  84
+CONTADORA             133                  85
+CONTADORB             134                  86
+BYTE_INICIAL            135                  87
+NOVA_LINHA             12                   C
+NOVA_COLUNA             24                  18
+MULTI                  46                  2E
+CONTINUA               57                  39
+FIM                    65                  41

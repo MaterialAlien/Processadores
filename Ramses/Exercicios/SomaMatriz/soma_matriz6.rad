@@ -1,0 +1,51 @@
+ORG 128
+dimensao:DB 
+valor_i: DB
+valor_j: DB 
+
+ORG 135
+byte_inicial:DB
+
+ORG 0
+
+
+            LDR A dimensao
+nova_linha: JZ FIM
+            STR A valor_i
+
+            LDR B dimensao
+nova_coluna:JZ nova_linhaPRE
+            STR B valor_j
+            JSR multi
+
+            ADD X valor_j
+            SUB X #1
+            LDR A valor_j
+            ADD A valor_i
+            STR A byte_inicial,X
+            LDR B valor_j
+            SUB B #1
+            JMP nova_coluna
+           
+
+nova_linhaPRE: LDR A valor_i
+              SUB A #1
+              JMP nova_linha
+            
+
+multi:      NOP
+            LDR B valor_i
+            SUB B #1
+
+            LDR X #0
+continua:   SUB B #1
+            JN multi,I
+            ADD X dimensao
+            JMP continua
+                       
+FIM: HLT
+      
+      
+
+
+

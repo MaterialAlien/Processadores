@@ -1,0 +1,127 @@
+Correção: Transposição de matrizes quadraticas
+Teste numero 1
+Caso 1:
+End.128 recebe 3
+End.130 recebe 6
+End.131 recebe 12
+End.132 recebe 4
+End.133 recebe 49
+End.134 recebe 48
+End.135 recebe 5
+End.136 recebe 13
+End.137 recebe 2
+End.138 recebe 6
+End.180 deve receber 6
+End.181 deve receber 49
+End.182 deve receber 13
+End.183 deve receber 12
+End.184 deve receber 48
+End.185 deve receber 2
+End.186 deve receber 4
+End.187 deve receber 5
+End.188 deve receber 6
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Teste numero 2
+Caso 2:
+End.128 recebe 6
+End.130 recebe 13
+End.131 recebe 6
+End.132 recebe 9
+End.133 recebe 48
+End.134 recebe 30
+End.135 recebe 101
+End.136 recebe 72
+End.137 recebe 2
+End.138 recebe 58
+End.139 recebe 81
+End.140 recebe 12
+End.141 recebe 100
+End.142 recebe 49
+End.143 recebe 120
+End.144 recebe 39
+End.145 recebe 4
+End.146 recebe 14
+End.147 recebe 9
+End.148 recebe 13
+End.149 recebe 133
+End.150 recebe 39
+End.151 recebe 3
+End.152 recebe 3
+End.153 recebe 17
+End.154 recebe 13
+End.155 recebe 3
+End.156 recebe 13
+End.157 recebe 100
+End.158 recebe 12
+End.159 recebe 18
+End.160 recebe 1
+End.161 recebe 54
+End.162 recebe 12
+End.163 recebe 70
+End.164 recebe 9
+End.165 recebe 30
+End.180 deve receber 13
+End.181 deve receber 72
+End.182 deve receber 49
+End.183 deve receber 13
+End.184 deve receber 13
+End.185 deve receber 1
+End.186 deve receber 6
+End.187 deve receber 2
+End.188 deve receber 120
+End.189 deve receber 133
+End.190 deve receber 3
+End.191 deve receber 54
+End.192 deve receber 9
+End.193 deve receber 58
+End.194 deve receber 39
+End.195 deve receber 39
+End.196 deve receber 13
+End.197 deve receber 12
+End.198 deve receber 48
+End.199 deve receber 81
+End.200 deve receber 4
+End.201 deve receber 3
+End.202 deve receber 100
+End.203 deve receber 70
+End.204 deve receber 30
+End.205 deve receber 12
+End.206 deve receber 14
+End.207 deve receber 3
+End.208 deve receber 12
+End.209 deve receber 9
+End.210 deve receber 101
+End.211 deve receber 100
+End.212 deve receber 9
+End.213 deve receber 17
+End.214 deve receber 18
+End.215 deve receber 30
+Valor inicial do PC e' 0
+Numero maximo de instrucoes e' 640000
+
+Arquivo MatrizTranposta.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 264 instrucoes, com 594 leituras e 49 escritas (643 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 1422 instrucoes, com 3102 leituras e 187 escritas (3289 acessos)
+ Todos os testes corretos
+ Todos os testes corretos
+
+Arquivo MatrizTranposta2.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 300 instrucoes, com 666 leituras e 67 escritas (733 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 1566 instrucoes, com 3390 leituras e 259 escritas (3649 acessos)
+ Todos os testes corretos
+ Todos os testes corretos
+
+Arquivo MatrizTranposta3.mem:
+ Teste 1: HLT -- Resultado correto
+  Executadas 300 instrucoes, com 684 leituras e 67 escritas (751 acessos)
+ Teste 2: HLT -- Resultado correto
+  Executadas 1566 instrucoes, com 3462 leituras e 259 escritas (3721 acessos)
+ Todos os testes corretos
+ Todos os testes corretos
+

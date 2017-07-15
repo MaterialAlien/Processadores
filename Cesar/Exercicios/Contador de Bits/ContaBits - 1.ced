@@ -1,0 +1,30 @@
+ORG 1024
+area: DW 1032
+size: DW 3
+nBITS: DW
+
+ORG 1032
+4
+6
+9
+
+ORG 0
+
+      MOV area, R0 ;; Move o endereço inicial da area de bits para R0
+      MOV #0, R5 
+      MOV size, R2
+loop: MOV (R0)+, R1;; Manda o valor apontado por R0 para função que contará seus bits 1
+      JSR R7, contaBits1
+      SOB R2, loop
+      MOV R5, nBits ;; Move a quantidade total de bits 1 na area de bytes para nBits
+      HLT
+
+contaBits1:ASR R1 ;; Manda o LSB para o carry e verifica se eh é um
+	   BCC pula;; Se o carry for o, faz nada
+	   ADD #1 R5;; Se o carry for 1, incrementa 1 ao R5
+    pula:  CMP R1, #0;; Verifica se o valor está todo zerado
+           BEQ return;; Se estiver todo zerado, retorna a função
+	   BR contaBits1;; Se não, continua a contar os bits 1
+   return: RTS R7;; Retorno da função para o endereço apontado pelo stack pointer
+
+	
