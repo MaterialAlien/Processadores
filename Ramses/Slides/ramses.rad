@@ -1,0 +1,55 @@
+
+	org		hE0
+destino:	db	0	; unsigned char destino;
+p:		db	0	; unsigned char *p;
+index:		db	0	; unsigned char index;
+vet:		dab	[10]	; unsigned char vet[10];
+
+
+;---------------------------------------------------------------------
+; Caso 1
+	org	0		; destino = *p;
+	
+	ldr	a,p,i
+	str	a,destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 2
+	org	h20		; destino = 5;
+	
+	ldr	a,#5
+	str	a,destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 3
+	org	h40		; destino = vet[index];
+	
+	ldr	x,#4
+	ldr	a,vet,x
+	str	a,destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 4
+	org	h60		; Shift Right "destino"
+
+	ldr	a,v
+	shr	a
+	str	a,v
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 5
+	org		h80		; funcao(); funcao();
+
+	jsr		f
+	jsr		f
+	hlt
+	
+f:	nop
+	jmp		f,i
+	
+	
+

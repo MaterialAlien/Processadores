@@ -1,0 +1,102 @@
+
+	org		hE0
+	
+destino:	db	0	; unsigned char destino;
+p:		db	0	; unsigned char *p;
+index:		db	0	; unsigned char index;
+vet:		dab	[10]	; unsigned char vet[10];
+
+Ef1:	db	Nf1
+Ef2:	db	Nf2
+Pf:	db	0
+N:	db	0
+
+CM1:	db	HFF		; constante "-1"
+C1:	db	1		; constante "1"
+C4:	db	4		; constante "4"
+C5:	db	5		; constante "5"
+C7:	db	7		; constante "8"
+
+;---------------------------------------------------------------------
+; Caso 1
+	org	0		; destino = *p;
+	lda	p
+	sta	Id0+1
+Id0:	lda	0
+	sta	destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 2
+	org	h20		; destino = 5;
+	lda	C5
+	sta	destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 3
+	org	h40		; destino = vet[index];
+	lda	index
+	add	vet
+	sta	Id4+1
+Id4:	lda	0
+	sta	destino
+	hlt
+
+;---------------------------------------------------------------------
+; Caso 4
+	org	h60		; Shift Right "destino"
+
+	lda	destino
+	sta	aux
+	
+	lda	C7		; N = 7
+	sta	N
+loop:				; do {
+	lda	destino		; 	A = destino
+	jn	soma1		; 	if (A < 0) A = A + 1;
+	jmp	final
+soma1:
+	add	C1
+final:
+	add	destino		; 	destino = A + destino
+	sta	destino
+
+	lda	N		; } while(--N);
+	add	CM1
+	sta	N
+	jz	fim
+	jmp	loop
+fim:
+
+	lda	destino
+	and	CB7
+	sta	destino
+	
+	lda	aux
+	and	C1
+	
+	hlt
+	
+
+;---------------------------------------------------------------------
+; Caso 5
+	org		h80		; funcao(); funcao();
+
+	lda		Ef1
+	sta		Pf
+	jmp		f
+Nf1:
+
+	lda		Ef2
+	sta		Pf
+	jmp		f
+Nf2:
+
+	hlt
+	
+f:	lda		Pf
+	sta		fR+1
+fR:	jmp		0
+	
+
